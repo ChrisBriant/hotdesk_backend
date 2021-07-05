@@ -40,6 +40,8 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'accounts',
     'desks',
+    'rest_framework',
+    'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -64,6 +66,7 @@ SENDGRID_SANDBOX_MODE_IN_DEBUG=False
 SENDGRID_ECHO_TO_STDOUT=True
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -72,6 +75,10 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+
+#CORS
+CORS_ORIGIN_ALLOW_ALL = True
 
 ROOT_URLCONF = 'hotdesk.urls'
 
