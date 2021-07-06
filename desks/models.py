@@ -63,3 +63,18 @@ class Booking(models.Model):
     constraints = [
         models.UniqueConstraint(fields=['slot','desk','plan'], name='unique_slot')
     ]
+
+
+class Organisation(models.Model):
+     owner = models.ForeignKey(Account,on_delete=models.CASCADE)
+     name = models.CharField(max_length=200)
+     org_id = models.CharField(max_length=16)
+
+#One organisation to many employees
+class OrgEmployee(models.Model):
+    employee = models.ForeignKey(Account,on_delete=models.CASCADE)
+    organisation = models.ForeignKey(Organisation,on_delete=models.CASCADE)
+
+    constraints = [
+        models.UniqueConstraint(fields=['employee','organisation'], name='unique_org_emp')
+    ]

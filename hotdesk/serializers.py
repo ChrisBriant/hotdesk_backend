@@ -20,6 +20,12 @@ class PublicUserSerializer(serializers.ModelSerializer):
         model = Account
         fields = ('id','name')
 
+class OrganisationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Organisation
+        fields = ('id','org_id','name')
+
+
 
 # class CatSerializer(serializers.ModelSerializer):
 #     cat_picture = serializers.SerializerMethodField()
