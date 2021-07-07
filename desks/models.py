@@ -39,18 +39,20 @@ class DeskPlan(models.Model):
     desk = models.ForeignKey(Desk,on_delete=models.CASCADE)
     plan = models.ForeignKey(Plan,on_delete=models.CASCADE)
 
-    constraints = [
-        models.UniqueConstraint(fields=['desk','plan'], name='unique_slot')
-    ]
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['desk','plan'], name='unique_desk_plan')
+        ]
 
 
 #For booking
 class Slot(models.Model):
     date = models.DateTimeField(null=False)
 
-    constraints = [
-        models.UniqueConstraint(fields=['date'], name='unique_slot')
-    ]
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['date'], name='unique_slot')
+        ]
 
 
 class Booking(models.Model):
@@ -60,9 +62,10 @@ class Booking(models.Model):
     date_booked = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
 
-    constraints = [
-        models.UniqueConstraint(fields=['slot','desk','plan'], name='unique_slot')
-    ]
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['slot','desk','user'], name='unique_booking')
+        ]
 
 
 class Organisation(models.Model):
@@ -74,7 +77,9 @@ class Organisation(models.Model):
 class OrgEmployee(models.Model):
     employee = models.ForeignKey(Account,on_delete=models.CASCADE)
     organisation = models.ForeignKey(Organisation,on_delete=models.CASCADE)
+    approved = models.BooleanField(default=False)
 
-    constraints = [
-        models.UniqueConstraint(fields=['employee','organisation'], name='unique_org_emp')
-    ]
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['employee','organisation'], name='unique_org_emp')
+        ]

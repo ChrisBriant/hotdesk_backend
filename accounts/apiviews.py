@@ -34,6 +34,9 @@ def get_token(request):
                 if user.is_enabled:
                     #Issue token
                     token = get_tokens_for_user(user)
+                    my_orgs = OrgEmployee.objects.filter(employee=user)
+                    myorg_serializer = OrgEmployeeSerializer(my_orgs,many=True,context={'user' : user})
+                    token['org_data'] = myorg_serializer.data
                     return Response(token, status=status.HTTP_200_OK)
                 else:
                     print("Account Disabled")

@@ -2,6 +2,7 @@ from rest_framework import serializers
 from rest_framework.fields import CurrentUserDefault
 from django.db.models import Count, Avg
 from accounts.models import Account
+from desks.models import *
 from django.conf import settings
 
 class GeneralResponse(object):
@@ -24,6 +25,33 @@ class OrganisationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Organisation
         fields = ('id','org_id','name')
+
+class OrgEmployeeSerializer(serializers.ModelSerializer):
+    organisation = OrganisationSerializer()
+    is_owner = serializers.SerializerMethodField()
+    status = serializers.SerializerMethodField()
+
+    class Meta:
+        model = OrgEmployee
+        fields = ('id','organisation','is_owner','status')
+
+    def get_is_owner(self,obj):
+        print(obj.organisation.owner.id,self.context['user'].id)
+        if obj.organisation.owner == self.context['user']:
+            return True
+        else:
+            return False
+
+    def get_status(self,obj):
+        print(obj.organisation.owner.id,self.context['user'].id)
+        if not obj.organisation.owner == self.context['user']:
+            if obj.approved:
+                return 'Approved'
+            else:
+                return 'Awaiting Approval'
+        else:
+            return 'Admin'
+
 
 
 
