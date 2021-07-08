@@ -15,6 +15,11 @@ class ResponseSerializer(serializers.Serializer):
     message = serializers.CharField(max_length=100)
 
 
+class EmployeeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Account
+        fields = ('id','email','name')
+
 #Restrict publicly viewable user attributes
 class PublicUserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -22,9 +27,27 @@ class PublicUserSerializer(serializers.ModelSerializer):
         fields = ('id','name')
 
 class OrganisationSerializer(serializers.ModelSerializer):
+    is_admin = serializers.SerializerMethodField()
+    memberships = serializers.SerializerMethodField()
+
     class Meta:
         model = Organisation
-        fields = ('id','org_id','name')
+        fields = ('id','org_id','name','is_admin','memberships')
+
+    def get_is_admin(self,obj):
+        print(self.context)
+        if self.context['user'] == obj.owner:
+            return True
+        else:
+            return False
+
+    def get_memberships(self,obj):
+        print(self.context)
+        if self.context['user'] == obj.owner:
+            return EmployeeMemberSerializer(obj.orgemployee_set,many=True,context=self.context).data
+        else:
+            return []
+
 
 class OrgEmployeeSerializer(serializers.ModelSerializer):
     organisation = OrganisationSerializer()
@@ -54,6 +77,16 @@ class OrgEmployeeSerializer(serializers.ModelSerializer):
 
 
 
+
+class EmployeeMemberSerializer(serializers.ModelSerializer):
+    employee_data = serializers.SerializerMethodField()
+
+    class Meta:
+        model = OrgEmployee
+        fields = ('id','approved','employee_data')
+
+    def get_employee_data(self,obj):
+        return EmployeeSerializer(obj.employee).data
 
 # class CatSerializer(serializers.ModelSerializer):
 #     cat_picture = serializers.SerializerMethodField()

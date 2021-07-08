@@ -84,7 +84,7 @@ def get_org(request):
         print(e)
         return Response(ResponseSerializer(GeneralResponse(False,"Organisation not found.")).data, status=status.HTTP_400_BAD_REQUEST)
     if org_emp.approved:
-        orgserializer = OrganisationSerializer(org_emp.organisation)
+        orgserializer = OrganisationSerializer(org_emp.organisation,context={'user' : request.user})
     else:
         return Response(ResponseSerializer(GeneralResponse(False,"You are not a member of this organisation, please wait until your membership has been approved.")).data, status=status.HTTP_400_BAD_REQUEST)
-    return Response(orgserializer.data, status=status.HTTP_201_CREATED)
+    return Response(orgserializer.data, status=status.HTTP_200_OK)
