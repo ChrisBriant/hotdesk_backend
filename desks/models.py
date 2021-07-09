@@ -27,23 +27,6 @@ def image_path_handler(instance, filename):
     return "titleimage_{id}/{name}.png".format(id=instance.id,name=name)
 
 
-#Represents the floor plan
-class Plan(models.Model):
-    creator = models.ForeignKey(Account,on_delete=models.CASCADE)
-    picture = models.FileField(upload_to=image_path_handler)
-    date_added = models.DateTimeField(auto_now_add=True)
-    date_modified = models.DateTimeField(auto_now=True)
-
-#Relationship between desk and floor plan
-class DeskPlan(models.Model):
-    desk = models.ForeignKey(Desk,on_delete=models.CASCADE)
-    plan = models.ForeignKey(Plan,on_delete=models.CASCADE)
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['desk','plan'], name='unique_desk_plan')
-        ]
-
 
 #For booking
 class Slot(models.Model):
@@ -82,4 +65,33 @@ class OrgEmployee(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=['employee','organisation'], name='unique_org_emp')
+        ]
+
+
+class Building(models.Model):
+    organisation = models.ForeignKey(Organisation,on_delete=models.CASCADE)
+    name = models.CharField(max_length=50)
+
+class Floor(models.Model):
+    name = models.CharField(max_length=20)
+    level = models.IntegerField()
+    building = models.ForeignKey(Building,on_delete=models.CASCADE)
+
+
+#Represents the floor plan
+class Plan(models.Model):
+    floor = models.ForeignKey(Floor,on_delete=models.CASCADE)
+    creator = models.ForeignKey(Account,on_delete=models.CASCADE)
+    picture = models.FileField(upload_to=image_path_handler)
+    date_added = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
+
+#Relationship between desk and floor plan
+class DeskPlan(models.Model):
+    desk = models.ForeignKey(Desk,on_delete=models.CASCADE)
+    plan = models.ForeignKey(Plan,on_delete=models.CASCADE)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['desk','plan'], name='unique_desk_plan')
         ]

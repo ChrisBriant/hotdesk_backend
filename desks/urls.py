@@ -9,4 +9,6 @@ urlpatterns = [
 	url(r'^getorganisation/', views.get_org, name='getorganisation'),
 	url(r'^reject/', views.reject_emp, name='reject'),
 	url(r'^accept/', views.accept_emp, name='accept'),
+	url(r'^addbuilding/', views.add_building, name='addbuilding'),
+	url(r'^addfloor/', views.add_floor, name='addfloor'),
 ]

@@ -124,3 +124,42 @@ def accept_emp(request):
         return Response(ResponseSerializer(GeneralResponse(False,'Sorry, you are not authorised to perform this action.')).data, status=status.HTTP_401_UNAUTHORIZED)
     orgserializer = OrganisationSerializer(org_emp.organisation,context={'user' : request.user})
     return Response(orgserializer.data, status=status.HTTP_200_OK)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def add_building(request):
+    org_id = request.data['orgId']
+    name = request.data['name']
+    try:
+        org = Organisation.objects.get(id=org_id)
+    except Exception as e:
+        print(e)
+        return Response(ResponseSerializer(GeneralResponse(False,"Organisation not found.")).data, status=status.HTTP_400_BAD_REQUEST)
+    if org.owner == request.user:
+        building = Building.objects.create(
+            name=name,
+            organisation=org
+        )
+    buildingserializer = BuildingSerializer(building)
+    return Response(buildingserializer.data, status=status.HTTP_201_CREATED)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def add_floor(request):
+    build_id = request.data['buildingId']
+    name = request.data['name']
+    level = request.data['level']
+    try:
+        building = Building.objects.get(id=build_id)
+    except Exception as e:
+        print(e)
+        return Response(ResponseSerializer(GeneralResponse(False,"Organisation not found.")).data, status=status.HTTP_400_BAD_REQUEST)
+    if building.organisation.owner == request.user:
+        floor = Floor.objects.create(
+            name=name,
+            level=level,
+            building=building
+        )
+    buildingserializer = BuildingSerializer(building)
+    return Response(buildingserializer.data, status=status.HTTP_201_CREATED)
