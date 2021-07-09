@@ -25,29 +25,50 @@ class PublicUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = Account
         fields = ('id','name')
+class FloorSerializer(serializers.ModelSerializer):
+    plan_id = serializers.ReadOnlyField(source='plan.id')
+
+    class Meta:
+        model = Floor
+        fields = ('id','level','name','plan_id')
+
+
+class BuildingSerializer(serializers.ModelSerializer):
+    floor = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Building
+        fields = ('id','name','floor')
+
+    def get_floor(self,obj):
+        floor_data = obj.floor_set.all()
+        return FloorSerializer(floor_data,many=True).data
+
 
 class OrganisationSerializer(serializers.ModelSerializer):
     is_admin = serializers.SerializerMethodField()
     memberships = serializers.SerializerMethodField()
+    buildings = serializers.SerializerMethodField()
 
     class Meta:
         model = Organisation
-        fields = ('id','org_id','name','is_admin','memberships')
+        fields = ('id','org_id','name','is_admin','memberships','buildings')
 
     def get_is_admin(self,obj):
-        print(self.context)
         if self.context['user'] == obj.owner:
             return True
         else:
             return False
 
     def get_memberships(self,obj):
-        print(self.context)
         if self.context['user'] == obj.owner:
             return EmployeeMemberSerializer(obj.orgemployee_set,many=True,context=self.context).data
         else:
             return []
 
+    def get_buildings(self,obj):
+        buildings = obj.building_set.all()
+        return BuildingSerializer(buildings,many=True).data
 
 class OrgEmployeeSerializer(serializers.ModelSerializer):
     organisation = OrganisationSerializer()
@@ -87,23 +108,3 @@ class EmployeeMemberSerializer(serializers.ModelSerializer):
 
     def get_employee_data(self,obj):
         return EmployeeSerializer(obj.employee).data
-
-
-class FloorSerializer(serializers.ModelSerializer):
-    plan_id = serializers.ReadOnlyField(source='plan.id')
-
-    class Meta:
-        model = Floor
-        fields = ('id','level','name','plan_id')
-
-
-class BuildingSerializer(serializers.ModelSerializer):
-    floor = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Building
-        fields = ('id','name','floor')
-
-    def get_floor(self,obj):
-        floor_data = obj.floor_set.all()
-        return FloorSerializer(floor_data,many=True).data

@@ -140,8 +140,8 @@ def add_building(request):
             name=name,
             organisation=org
         )
-    buildingserializer = BuildingSerializer(building)
-    return Response(buildingserializer.data, status=status.HTTP_201_CREATED)
+    orgserializer = OrganisationSerializer(org,context={'user':request.user})
+    return Response(orgserializer.data, status=status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
@@ -161,5 +161,5 @@ def add_floor(request):
             level=level,
             building=building
         )
-    buildingserializer = BuildingSerializer(building)
-    return Response(buildingserializer.data, status=status.HTTP_201_CREATED)
+    orgserializer = OrganisationSerializer(building.organisation,context={'user':request.user})
+    return Response(orgserializer.data, status=status.HTTP_201_CREATED)
