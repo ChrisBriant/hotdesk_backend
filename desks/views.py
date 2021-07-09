@@ -88,3 +88,39 @@ def get_org(request):
     else:
         return Response(ResponseSerializer(GeneralResponse(False,"You are not a member of this organisation, please wait until your membership has been approved.")).data, status=status.HTTP_400_BAD_REQUEST)
     return Response(orgserializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def reject_emp(request):
+    org_id = request.data['orgId']
+    emp_id = request.data['empId']
+    try:
+        org_emp = OrgEmployee.objects.get(organisation__id=org_id,employee__id=emp_id)
+    except Exception as e:
+        return Response(ResponseSerializer(GeneralResponse(False,"Organisation not found.")).data, status=status.HTTP_400_BAD_REQUEST)
+    #Check authorised
+    if org_emp.organisation.owner == request.user:
+        org_emp.delete()
+    else:
+        return Response(ResponseSerializer(GeneralResponse(False,'Sorry, you are not authorised to perform this action.')).data, status=status.HTTP_401_UNAUTHORIZED)
+    orgserializer = OrganisationSerializer(org_emp.organisation,context={'user' : request.user})
+    return Response(orgserializer.data, status=status.HTTP_200_OK)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def accept_emp(request):
+    org_id = request.data['orgId']
+    emp_id = request.data['empId']
+    try:
+        org_emp = OrgEmployee.objects.get(organisation__id=org_id,employee__id=emp_id)
+    except Exception as e:
+        return Response(ResponseSerializer(GeneralResponse(False,"Organisation not found.")).data, status=status.HTTP_400_BAD_REQUEST)
+    #Check authorised
+    if org_emp.organisation.owner == request.user:
+        org_emp.approved = True
+        org_emp.save()
+    else:
+        return Response(ResponseSerializer(GeneralResponse(False,'Sorry, you are not authorised to perform this action.')).data, status=status.HTTP_401_UNAUTHORIZED)
+    orgserializer = OrganisationSerializer(org_emp.organisation,context={'user' : request.user})
+    return Response(orgserializer.data, status=status.HTTP_200_OK)

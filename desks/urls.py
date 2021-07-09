@@ -7,4 +7,6 @@ urlpatterns = [
 	url(r'^myorganisations/', views.my_orgs, name='myorganisations'),
 	url(r'^joinorganisation/', views.join_org, name='joinorganisation'),
 	url(r'^getorganisation/', views.get_org, name='getorganisation'),
+	url(r'^reject/', views.reject_emp, name='reject'),
+	url(r'^accept/', views.accept_emp, name='accept'),
 ]
