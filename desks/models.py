@@ -1,6 +1,7 @@
 from django.db import models
 from .validators import FileValidator
 from accounts.models import Account
+import os, secrets
 
 # Create your models here.
 class Desk(models.Model):
@@ -85,6 +86,11 @@ class Plan(models.Model):
     picture = models.FileField(upload_to=image_path_handler)
     date_added = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['floor'], name='unique_floor')
+        ]
 
 #Relationship between desk and floor plan
 class DeskPlan(models.Model):

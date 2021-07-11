@@ -25,6 +25,14 @@ class PublicUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = Account
         fields = ('id','name')
+
+
+class PlanSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Plan
+        fields = ('id','picture')
+
 class FloorSerializer(serializers.ModelSerializer):
     plan_id = serializers.ReadOnlyField(source='plan.id')
 

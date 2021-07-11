@@ -42,7 +42,7 @@ def create_organisation(request):
     except Exception as e:
         print(e)
         return Response(ResponseSerializer(GeneralResponse(False,"An error occured adding the organisation")).data, status=status.HTTP_400_BAD_REQUEST)
-    orgserializer = OrganisationSerializer(org)
+    orgserializer = OrganisationSerializer(org,context={'user' : request.user})
     return Response(orgserializer.data,status=status.HTTP_201_CREATED)
 
 
@@ -78,6 +78,7 @@ def join_org(request):
 @permission_classes([IsAuthenticated])
 def get_org(request):
     org_id = request.data['orgId']
+    print("here",org_id)
     try:
         org_emp = OrgEmployee.objects.get(organisation_id=org_id,employee=request.user)
     except Exception as e:
@@ -163,3 +164,32 @@ def add_floor(request):
         )
     orgserializer = OrganisationSerializer(building.organisation,context={'user':request.user})
     return Response(orgserializer.data, status=status.HTTP_201_CREATED)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def add_plan(request):
+    floor_id=request.data['floorId']
+    try:
+        floor = Floor.objects.get(id=floor_id)
+    except Exception as e:
+        print(e)
+        return Response(ResponseSerializer(GeneralResponse(False,"Floor not found.")).data, status=status.HTTP_400_BAD_REQUEST)
+    if floor.building.organisation.owner == request.user:
+        print('FILES',request.FILES)
+        if request.FILES['picture']:
+            plan = Plan(
+                floor=floor,
+                picture=request.FILES['picture'],
+                creator=request.user
+            )
+            try:
+                plan.full_clean()
+                plan.save()
+            except Exception as e:
+                print(e)
+                return Response(ResponseSerializer(GeneralResponse(False,"Unable to upload image")).data, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        return Response(ResponseSerializer(GeneralResponse(False,"You are not authorised to upload to this organisation.")).data, status=status.HTTP_401_UNAUTHORIZED)
+    serializer = PlanSerializer(plan)
+    return Response(serializer.data, status=status.HTTP_201_CREATED)
