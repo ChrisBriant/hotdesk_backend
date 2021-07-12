@@ -1,9 +1,11 @@
 from django.db import models
+from django.dispatch import receiver
+from django.conf import settings
 from .validators import FileValidator
 from accounts.models import Account
 import os, secrets
 
-# Create your models here.
+
 class Desk(models.Model):
     desk_id =  models.CharField(max_length=16)
     name =  models.CharField(max_length=16)
@@ -25,7 +27,7 @@ def image_path_handler(instance, filename):
     #Create a random filename using hash function
     name = secrets.token_hex(20)
     print("uploading",instance.__dict__)
-    return "titleimage_{id}/{name}.png".format(id=instance.id,name=name)
+    return "plan_{id}/{name}.png".format(id=instance.floor_id,name=name)
 
 
 
@@ -91,6 +93,19 @@ class Plan(models.Model):
         constraints = [
             models.UniqueConstraint(fields=['floor'], name='unique_floor')
         ]
+
+
+@receiver(models.signals.post_delete, sender=Plan)
+def delete_image(sender, instance, *args, **kwargs):
+    os.remove(instance.picture.path)
+
+@receiver(models.signals.post_save, sender=Plan)
+def clear_images(sender, instance, *args, **kwargs):
+    dir = os.path.dirname(instance.picture.path)
+    files = os.listdir(dir)
+    file = os.path.basename(instance.picture.path)
+    [os.remove(dir+'/'+f) for f in files if f != file]
+
 
 #Relationship between desk and floor plan
 class DeskPlan(models.Model):

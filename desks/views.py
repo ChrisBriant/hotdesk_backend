@@ -178,17 +178,30 @@ def add_plan(request):
     if floor.building.organisation.owner == request.user:
         print('FILES',request.FILES)
         if request.FILES['picture']:
-            plan = Plan(
-                floor=floor,
-                picture=request.FILES['picture'],
-                creator=request.user
-            )
+            #First try to get existing plan
             try:
-                plan.full_clean()
-                plan.save()
+                #We want to overwrite the plan if it exists
+                plan = Plan.objects.get(floor=floor)
+                plan.picture = request.FILES['picture']
+                try:
+                    plan.full_clean()
+                    plan.save()
+                except Exception as e:
+                    print(e)
+                    return Response(ResponseSerializer(GeneralResponse(False,"Unable to upload image")).data, status=status.HTTP_400_BAD_REQUEST)
             except Exception as e:
-                print(e)
-                return Response(ResponseSerializer(GeneralResponse(False,"Unable to upload image")).data, status=status.HTTP_400_BAD_REQUEST)
+                #Plan doesn't exist create new one
+                plan = Plan(
+                    floor=floor,
+                    picture=request.FILES['picture'],
+                    creator=request.user
+                )
+                try:
+                    plan.full_clean()
+                    plan.save()
+                except Exception as e:
+                    print(e)
+                    return Response(ResponseSerializer(GeneralResponse(False,"Unable to upload image")).data, status=status.HTTP_400_BAD_REQUEST)
     else:
         return Response(ResponseSerializer(GeneralResponse(False,"You are not authorised to upload to this organisation.")).data, status=status.HTTP_401_UNAUTHORIZED)
     serializer = PlanSerializer(plan)
