@@ -26,12 +26,23 @@ class PublicUserSerializer(serializers.ModelSerializer):
         model = Account
         fields = ('id','name')
 
+class DeskSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Desk
+        fields = ('id','desk_id','name','x','y','w','h')
+
 
 class PlanSerializer(serializers.ModelSerializer):
+    desks = serializers.SerializerMethodField()
 
     class Meta:
         model = Plan
-        fields = ('id','picture')
+        fields = ('id','picture','desks')
+
+    def get_desks(self,obj):
+        return DeskSerializer(obj.desk_set.all(),many=True).data
+
 
 class FloorSerializer(serializers.ModelSerializer):
     plan_id = serializers.ReadOnlyField(source='plan.id')

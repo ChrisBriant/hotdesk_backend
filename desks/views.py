@@ -206,3 +206,28 @@ def add_plan(request):
         return Response(ResponseSerializer(GeneralResponse(False,"You are not authorised to upload to this organisation.")).data, status=status.HTTP_401_UNAUTHORIZED)
     serializer = PlanSerializer(plan)
     return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def add_desk_plan(request):
+    plan_id = request.data['planId'];
+    try:
+        plan = Plan.objects.get(id=plan_id)
+    except Exception as e:
+        return Response(ResponseSerializer(GeneralResponse(False,"Plan does not exist.")).data, status=status.HTTP_400_BAD_REQUEST)
+    #Delete all the existing desks
+    plan.desk_set.all().delete()
+    for desk in request.data['desks']:
+        new_desk = Desk.objects.create(
+            plan = plan,
+            desk_id = desk['deskId'],
+            name =  desk['name'],
+            x = desk['x'],
+            y = desk['y'],
+            w = desk['w'],
+            h = desk['h']
+        )
+    serializer =  PlanSerializer(plan)
+    return Response(serializer.data, status=status.HTTP_201_CREATED)
