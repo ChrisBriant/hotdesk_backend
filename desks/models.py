@@ -96,25 +96,3 @@ class Desk(models.Model):
     h = models.IntegerField()
     date_added = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
-
-#For booking
-class Slot(models.Model):
-    date = models.DateTimeField(null=False)
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['date'], name='unique_slot')
-        ]
-
-
-class Booking(models.Model):
-    user = models.ForeignKey(Account,on_delete=models.CASCADE)
-    slot = models.ForeignKey(Slot,on_delete=models.CASCADE)
-    desk = models.ForeignKey(Desk,on_delete=models.CASCADE)
-    date_booked = models.DateTimeField(auto_now_add=True)
-    date_modified = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['slot','desk','user'], name='unique_booking')
-        ]

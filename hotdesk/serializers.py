@@ -27,7 +27,7 @@ class PublicUserSerializer(serializers.ModelSerializer):
         fields = ('id','name')
 
 class DeskSerializer(serializers.ModelSerializer):
-    
+
     class Meta:
         model = Desk
         fields = ('id','desk_id','name','x','y','w','h')
@@ -46,10 +46,18 @@ class PlanSerializer(serializers.ModelSerializer):
 
 class FloorSerializer(serializers.ModelSerializer):
     plan_id = serializers.ReadOnlyField(source='plan.id')
+    plan = serializers.SerializerMethodField()
 
     class Meta:
         model = Floor
-        fields = ('id','level','name','plan_id')
+        fields = ('id','level','name','plan_id','plan')
+
+    def get_plan(self,obj):
+        plan_data = obj.plan_set.all()
+        if len(plan_data) > 0:
+            return PlanSerializer(obj.plan_set.all()[0]).data
+        else:
+            return None
 
 
 class BuildingSerializer(serializers.ModelSerializer):

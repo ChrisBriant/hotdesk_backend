@@ -27,6 +27,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/account/', include('accounts.urls')),
     path('api/desks/', include('desks.urls')),
+    path('api/booking/', include('booking.urls')),
     url(r'confirm/(?P<hash>\w+)/',account_views.confirm,name='confirm'),
 ]
 
