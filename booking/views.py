@@ -1,5 +1,6 @@
 from django.contrib.auth import authenticate
 from django.db import IntegrityError
+from django.http import JsonResponse
 from rest_framework.decorators import api_view,authentication_classes,permission_classes,action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
@@ -24,7 +25,7 @@ def make_booking(request):
     if desk.plan.floor.building.organisation.orgemployee_set.all()\
         .filter(employee=request.user).count() > 0:
         try:
-            Booking.objects.create(
+            booking = Booking.objects.create(
                 desk=desk,
                 user=request.user,
                 date=booking_date
@@ -33,7 +34,8 @@ def make_booking(request):
             return Response(ResponseSerializer(GeneralResponse(False,"Booking failed.")).data, status=status.HTTP_400_BAD_REQUEST)
     else:
         return Response(ResponseSerializer(GeneralResponse(False,"Unauthorised to make this booking.")).data, status=status.HTTP_403_FORBIDDEN)
-    return Response("hello",status=status.HTTP_201_CREATED)
+    serializer = BookingSerializer(booking)
+    return Response(serializer.data,status=status.HTTP_201_CREATED)
 
 def create_slots(start,end):
     slots = []
@@ -51,12 +53,16 @@ def create_slots(start,end):
 def get_bookings(request):
     org_id = request.data['orgId']
     floor_id = request.data['floorId']
+    desk_count = Desk.objects.filter(plan__floor__id=floor_id).count()
     try:
         org = Organisation.objects.get(id=org_id)
     except Exception as e:
         return Response(ResponseSerializer(GeneralResponse(False,"Organisation does not exist.")).data, status=status.HTTP_400_BAD_REQUEST)
     #Check authorised
     if org.orgemployee_set.all().filter(employee=request.user).count() > 0:
+        #Store the booking data
+        booking_data = dict()
+        booking_data['desk_count'] = desk_count
         #Get time range
         month = request.data['month']
         year = request.data['year']
@@ -89,7 +95,16 @@ def get_bookings(request):
                 out_slot[date_str].append(desk_obj)
                 print(bk.desk.name)
             out_slots.append(out_slot)
-        print(out_slots)
+        booking_data['out_slots'] = out_slots
+        #print(out_slots)
     else:
         return Response(ResponseSerializer(GeneralResponse(False,"Unauthorised to make this booking.")).data, status=status.HTTP_403_FORBIDDEN)
-    return Response("hello",status=status.HTTP_200_OK)
+    return JsonResponse(booking_data,safe=False)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def my_bookings(request):
+    bookings = Booking.objects.filter(user=request.user,date__gte=datetime.now())
+    serializer = BookingSerializer(bookings,many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)

@@ -3,6 +3,7 @@ from rest_framework.fields import CurrentUserDefault
 from django.db.models import Count, Avg
 from accounts.models import Account
 from desks.models import *
+from booking.models import *
 from django.conf import settings
 
 class GeneralResponse(object):
@@ -135,3 +136,13 @@ class EmployeeMemberSerializer(serializers.ModelSerializer):
 
     def get_employee_data(self,obj):
         return EmployeeSerializer(obj.employee).data
+
+
+class BookingSerializer(serializers.ModelSerializer):
+    user = EmployeeSerializer()
+    desk = DeskSerializer()
+
+    class Meta:
+        model = Booking
+        fields = ('id','user',
+        'desk','date')
