@@ -81,20 +81,20 @@ def get_bookings(request):
                 ).order_by('date')
         for booking in monthly_bookings:
             print('BOOKING',booking.date)
-        out_slots = []
+        out_slots = dict()
         for slot in slots:
             print('slot',slot['date'])
-            out_slot = dict()
+            #out_slot = dict()
             date_str = slot['date'].strftime('%d/%m/%Y')
-            out_slot[date_str] = []
+            out_slots[date_str] = []
             daily_bookings = monthly_bookings.filter(date=slot['date'])
             for bk in daily_bookings:
                 desk_obj = dict()
                 desk_obj['name'] = bk.desk.name
                 desk_obj['id'] = bk.desk.id
-                out_slot[date_str].append(desk_obj)
+                out_slots[date_str].append(desk_obj)
                 print(bk.desk.name)
-            out_slots.append(out_slot)
+            #out_slots.append(out_slot)
         booking_data['out_slots'] = out_slots
         #print(out_slots)
     else:
