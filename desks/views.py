@@ -71,7 +71,7 @@ def join_org(request):
         )
     except IntegrityError as e:
         return Response(ResponseSerializer(GeneralResponse(False,"You have already requested to join this organisation.")).data, status=status.HTTP_400_BAD_REQUEST)
-    return Response(ResponseSerializer(GeneralResponse(True,"Succesfully Joined {} please await approval.".format(org.name))).data, status=status.HTTP_201_CREATED)
+    return Response(ResponseSerializer(GeneralResponse(True,"Succesfully joined {} please await approval.".format(org.name))).data, status=status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
