@@ -6,4 +6,5 @@ urlpatterns = [
 	url(r'^makebooking/',views.make_booking, name='makebooking'),
     url(r'^getbookings/',views.get_bookings, name='getbookings'),
     url(r'^mybookings/',views.my_bookings, name='mybookings'),
+	url(r'^cancelbooking/',views.delete_booking, name='cancelbooking'),
 ]
