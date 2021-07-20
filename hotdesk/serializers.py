@@ -28,11 +28,19 @@ class PublicUserSerializer(serializers.ModelSerializer):
         fields = ('id','name')
 
 class DeskSerializer(serializers.ModelSerializer):
+    desk_floor = serializers.SerializerMethodField()
+    desk_building = serializers.SerializerMethodField()
 
     class Meta:
         model = Desk
-        fields = ('id','desk_id','name','x','y','w','h')
+        fields = ('id','desk_id','name','x','y','w','h','desk_floor',
+            'desk_building')
 
+    def get_desk_floor(self,obj):
+        return obj.plan.floor.name
+
+    def get_desk_building(self,obj):
+        return obj.plan.floor.building.name
 
 class PlanSerializer(serializers.ModelSerializer):
     desks = serializers.SerializerMethodField()
@@ -141,8 +149,12 @@ class EmployeeMemberSerializer(serializers.ModelSerializer):
 class BookingSerializer(serializers.ModelSerializer):
     user = EmployeeSerializer()
     desk = DeskSerializer()
+    date_str = serializers.SerializerMethodField()
 
     class Meta:
         model = Booking
         fields = ('id','user',
-        'desk','date')
+        'desk','date','date_str')
+
+    def get_date_str(self,obj):
+        return obj.date.strftime("%d/%m/%Y")

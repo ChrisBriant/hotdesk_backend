@@ -93,10 +93,7 @@ def get_bookings(request):
                 desk_obj['name'] = bk.desk.name
                 desk_obj['id'] = bk.desk.id
                 out_slots[date_str].append(desk_obj)
-                print(bk.desk.name)
-            #out_slots.append(out_slot)
         booking_data['out_slots'] = out_slots
-        #print(out_slots)
     else:
         return Response(ResponseSerializer(GeneralResponse(False,"Unauthorised to make this booking.")).data, status=status.HTTP_403_FORBIDDEN)
     return JsonResponse(booking_data,safe=False)
@@ -105,6 +102,7 @@ def get_bookings(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def my_bookings(request):
-    bookings = Booking.objects.filter(user=request.user,date__gte=datetime.now())
+    yesterday = datetime.now() + timedelta(days=-1)
+    bookings = Booking.objects.filter(user=request.user,date__gte=yesterday).order_by('date')
     serializer = BookingSerializer(bookings,many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
