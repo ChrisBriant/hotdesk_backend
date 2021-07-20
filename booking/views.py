@@ -114,15 +114,34 @@ def my_bookings(request):
     serializer = BookingSerializer(bookings,many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def org_bookings(request):
+    org_id = request.data.get('orgId')
+    #Check authorised
+    try:
+        org = Organisation.objects.get(id=org_id)
+    except Exception as e:
+        return Response(ResponseSerializer(GeneralResponse(False,"Organisation does not exist.")).data, status=status.HTTP_400_BAD_REQUEST)
+    if org.owner != request.user:
+        return Response(ResponseSerializer(GeneralResponse(False,"You are not authorised to access this organisations bookings.")).data, status=status.HTTP_403_FORBIDDEN)
+    yesterday = datetime.now() + timedelta(days=-1)
+    bookings = Booking.objects.filter(date__gte=yesterday,
+        desk__plan__floor__building__organisation=org)\
+        .order_by('date')
+    serializer = BookingSerializer(bookings,many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 
 @api_view(['DELETE','OPTIONS'])
 @permission_classes([IsAuthenticated])
 def delete_booking(request):
     org_id = request.data['orgId']
-    # try:
-    #     org = Organisation.objects.get(id=org_id)
-    # except Exception as e:
-    #     return Response(ResponseSerializer(GeneralResponse(False,"Organisation does not exist.")).data, status=status.HTTP_400_BAD_REQUEST)
+    try:
+        org = Organisation.objects.get(id=org_id)
+    except Exception as e:
+        return Response(ResponseSerializer(GeneralResponse(False,"Organisation does not exist.")).data, status=status.HTTP_400_BAD_REQUEST)
     booking_id = request.data['bookingId']
     try:
         booking = Booking.objects.get(id=booking_id,
@@ -130,12 +149,12 @@ def delete_booking(request):
     except Exception as e:
         return Response(status=status.HTTP_204_NO_CONTENT)
     #Check authorised
-    if (booking.user == request.user) or request.user.is_staff:
+    if (booking.user == request.user) or (org.owner == request.user):
         booking.delete()
         #Return booking listings
         yesterday = datetime.now() + timedelta(days=-1)
         bookings = Booking.objects.filter(user=request.user,date__gte=yesterday,
-            desk__plan__floor__building__organisation__id=org_id)\
+            desk__plan__floor__building__organisation=org)\
             .order_by('date')
         serializer=BookingSerializer(bookings,many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
