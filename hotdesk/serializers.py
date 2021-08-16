@@ -21,6 +21,22 @@ class EmployeeSerializer(serializers.ModelSerializer):
         model = Account
         fields = ('id','email','name')
 
+#Just return id and name for privacy
+class EmployeeSerializerSimple(serializers.ModelSerializer):
+    class Meta:
+        model = Account
+        fields = ('id','name')
+
+class EmployeeMemberSerializer(serializers.ModelSerializer):
+    employee_data = serializers.SerializerMethodField()
+
+    class Meta:
+        model = OrgEmployee
+        fields = ('id','approved','employee_data')
+
+    def get_employee_data(self,obj):
+        return EmployeeSerializer(obj.employee).data
+
 #Restrict publicly viewable user attributes
 class PublicUserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -85,10 +101,11 @@ class OrganisationSerializer(serializers.ModelSerializer):
     is_admin = serializers.SerializerMethodField()
     memberships = serializers.SerializerMethodField()
     buildings = serializers.SerializerMethodField()
+    owner = EmployeeSerializerSimple()
 
     class Meta:
         model = Organisation
-        fields = ('id','org_id','name','is_admin','memberships','buildings')
+        fields = ('id','org_id','name','is_admin','memberships','buildings','owner')
 
     def get_is_admin(self,obj):
         if self.context['user'] == obj.owner:
@@ -105,6 +122,7 @@ class OrganisationSerializer(serializers.ModelSerializer):
     def get_buildings(self,obj):
         buildings = obj.building_set.all()
         return BuildingSerializer(buildings,many=True).data
+
 
 class OrgEmployeeSerializer(serializers.ModelSerializer):
     organisation = OrganisationSerializer()
@@ -131,19 +149,6 @@ class OrgEmployeeSerializer(serializers.ModelSerializer):
                 return 'Awaiting Approval'
         else:
             return 'Admin'
-
-
-
-
-class EmployeeMemberSerializer(serializers.ModelSerializer):
-    employee_data = serializers.SerializerMethodField()
-
-    class Meta:
-        model = OrgEmployee
-        fields = ('id','approved','employee_data')
-
-    def get_employee_data(self,obj):
-        return EmployeeSerializer(obj.employee).data
 
 
 class BookingSerializer(serializers.ModelSerializer):
