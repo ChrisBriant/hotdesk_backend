@@ -13,4 +13,5 @@ urlpatterns = [
 	url(r'^addfloor/', views.add_floor, name='addfloor'),
 	url(r'^addplan/', views.add_plan, name='addplan'),
 	url(r'^adddeskplan/', views.add_desk_plan, name='adddeskplan'),
+	url(r'^deletefloor/', views.delete_floor, name='deletefloor'),
 ]
