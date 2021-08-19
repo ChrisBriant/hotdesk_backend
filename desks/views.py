@@ -233,7 +233,7 @@ def add_desk_plan(request):
     return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-@api_view(['DELETE'])
+@api_view(['DELETE','OPTIONS'])
 @permission_classes([IsAuthenticated])
 def delete_floor(request):
     floor_id = request.data['floorId']
@@ -243,6 +243,7 @@ def delete_floor(request):
         return Response(ResponseSerializer(GeneralResponse(False,"Floor does not exist.")).data, status=status.HTTP_204_NO_CONTENT)
     if floor.building.organisation.owner == request.user:
         floor.delete()
+        orgserializer = OrganisationSerializer(floor.building.organisation,context={'user':request.user})
     else:
         return Response(ResponseSerializer(GeneralResponse(False,"You are not authorised to perform this action.")).data, status=status.HTTP_403_FORBIDDEN)
-    return Response(ResponseSerializer(GeneralResponse(True,"Floor has been deleted.")).data, status=status.HTTP_200_OK)
+    return Response(orgserializer.data, status=status.HTTP_200_OK)
