@@ -2,7 +2,6 @@ from django.shortcuts import render
 
 from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
-from django.utils.http import urlsafe_base64_decode
 from django.middleware import csrf
 from django.contrib.auth import authenticate, login as auth_login, logout
 from django.contrib import messages
@@ -191,3 +190,27 @@ def confirm(request,hash):
     except Exception as e:
         message = 'Unable to verify account, please try a forgot password reset.'
     return render(request,'accounts/confirmation.html',{'message':message})
+
+
+def passreset_api(request,hash):
+    form = ChangePasswordForm()
+    if request.POST:
+        form = ChangePasswordForm(request.POST)
+        if form.is_valid():
+            try:
+                user = Account.objects.get(hash=hash)
+                print(user)
+                user.set_password(form.cleaned_data['password'])
+                user.is_enabled = True
+                #Change the hash for security
+                user.hash = hex(random.getrandbits(128))
+                user.save()
+                messages.info(request,"Your password has successfully been reset")
+            except Exception as e:
+                print(e)
+                messages.error(request,"Sorry a matching account cannot be found")
+        else:
+            messages.error(request,"There is a problem with the passwords, either they do not match " +
+                                    "or the password is not valid. It must be eight characters and include at " +
+                                    "least one number and one special character.")
+    return render(request, 'accounts/password_reset_api.html', {'form' : form, 'show_header' : True, 'login_url' : settings.BASE_URL })

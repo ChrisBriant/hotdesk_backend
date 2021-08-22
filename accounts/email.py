@@ -4,15 +4,20 @@ from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import *
 import os
 
-def sendjoiningconfirmation(url,username,emailad):
+TEMPLATES = {
+    'CONFIRM_ACCOUNT_EMAIL' : 'd-ec72ceb7fa3740b1867b64d5fb5639e1',
+    'RESET_PASSWORD_EMAIL' : 'd-73260915064549a1994de2844ce3d271'
+}
+
+def sendjoiningconfirmation(url,emailad,name,template):
     f = settings.ADMIN_SMTP
     t = emailad
-    s = "Please Confirm Membership for " + settings.SITE_NAME
-    c = "<html><head><title>" + settings.SITE_NAME + " - Confirm Membership</title></head><body><h1>Hello "+ username + "</h1>" \
-                                    + "<p>Please confirm membership of forum.org by clicking on the link below.</p>" \
-                                    + "<h2><a href='" + url + "' target='_blank'>" + url + "</a></h2>" \
-                                    + "</body></html>"
-    mail = Mail(from_email=f, subject=s, to_emails=t, html_content=c)
+    mail = Mail(from_email=f, to_emails=t)
+    mail.template_id = TEMPLATES[template]
+    mail.dynamic_template_data = {
+        'confirm_link': url,
+        'name' : name
+    }
     try:
         sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
         response = sg.send(mail)
@@ -22,15 +27,30 @@ def sendjoiningconfirmation(url,username,emailad):
     except Exception as e:
         print(e)
 
-
-def sendpasswordresetemail(url,username,emailad):
+def sendpasswordresetemail(url,emailad,name,template):
     f = settings.ADMIN_SMTP
     t = emailad
-    s = "Reset your password for " + settings.SITE_NAME
-    c = "<html><head><title>Reset Password</title></head><body><h1>Hello "+ username + \
-                                    " click on the link below or copy and paste into the browser address bar to reset your password</h1>" \
-                                    + "<h2><a href='" + url + "'>" + url + "</a></h2>" \
-                                    + "</body></html>"
+    mail = Mail(from_email=f,to_emails=t)
+    mail.template_id = TEMPLATES[template]
+    mail.dynamic_template_data = {
+        'reset_link': url,
+        'name':name
+    }
+    try:
+        sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
+        response = sg.send(mail)
+        print(response.status_code)
+        print(response.body)
+        print(response.headers)
+    except Exception as e:
+        print(e)
+
+def sendcontactmessage(message,subject):
+    f = settings.ADMIN_SMTP
+    t = 'cbri4nt@gmail.com'
+    s = subject
+    c = "<html><head><title>Reset Password</title></head><body><p> "+ \
+                                    message + "</p></body></html>"
     mail = Mail(from_email=f, subject=s, to_emails=t, html_content=c)
     try:
         sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))

@@ -74,7 +74,7 @@ def register(request):
         user.hash = hex(random.getrandbits(128))
         user.save()
         url = settings.BASE_URL + "confirm/" + user.hash + "/"
-        sendjoiningconfirmation(url,user.name,user.email)
+        sendjoiningconfirmation(url,user.email,user.name,'CONFIRM_ACCOUNT_EMAIL')
         return Response(ResponseSerializer(GeneralResponse(True,'Account Created')).data, status=status.HTTP_201_CREATED)
     except IntegrityError as e:
         print(type(e).__name__)
@@ -95,7 +95,7 @@ def forgot_password(request):
     user.hash = hex(random.getrandbits(128))
     user.save()
     url = settings.BASE_URL + "passwordreset/" + user.hash + "/"
-    sendpasswordresetemail(url,user.name,user.email)
+    sendpasswordresetemail(url,user.email,user.name,'RESET_PASSWORD_EMAIL')
     return Response(ResponseSerializer(GeneralResponse(True,'Please check your email and click on the link to reset your password')).data, status=status.HTTP_200_OK)
 
 
