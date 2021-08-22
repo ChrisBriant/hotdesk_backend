@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework import status
 from .models import *
+from accounts.email import sendcontactmessage
 from hotdesk.serializers import *
 import random, string
 
@@ -247,3 +248,16 @@ def delete_floor(request):
     else:
         return Response(ResponseSerializer(GeneralResponse(False,"You are not authorised to perform this action.")).data, status=status.HTTP_403_FORBIDDEN)
     return Response(orgserializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+def contact(request):
+    if request.user.is_authenticated:
+        from_user = request.user.name
+    else:
+        from_user = "Anonymous"
+    subject = 'Hotdesk - Message from ' + from_user
+    message = request.data['message']
+    #print("Sending message")
+    sendcontactmessage(message,subject)
+    return Response(ResponseSerializer(GeneralResponse(True,'Message Sent')).data, status=status.HTTP_200_OK)

@@ -5,8 +5,8 @@ from sendgrid.helpers.mail import *
 import os
 
 TEMPLATES = {
-    'CONFIRM_ACCOUNT_EMAIL' : 'd-ec72ceb7fa3740b1867b64d5fb5639e1',
-    'RESET_PASSWORD_EMAIL' : 'd-73260915064549a1994de2844ce3d271'
+    'CONFIRM_ACCOUNT_EMAIL' : 'd-90ec8e5c0213416bb35faaf9597cb800',
+    'RESET_PASSWORD_EMAIL' : 'd-9b23556188f144a7a4ce97ba38dc334a'
 }
 
 def sendjoiningconfirmation(url,emailad,name,template):
