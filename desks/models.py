@@ -5,9 +5,6 @@ from .validators import FileValidator
 from accounts.models import Account
 import os, secrets
 
-
-
-
 validate_file = FileValidator(max_size=1024 * 5000,
                              content_types=('image/jpeg','image/png','image/gif','image/tiff','application/x-empty',))
 
@@ -16,11 +13,7 @@ def image_path_handler(instance, filename):
     fn, ext = os.path.splitext(filename)
     #Create a random filename using hash function
     name = secrets.token_hex(20)
-    print("uploading",instance.__dict__)
     return "plan_{id}/{name}.png".format(id=instance.floor_id,name=name)
-
-
-
 
 
 class Organisation(models.Model):
@@ -75,16 +68,6 @@ def clear_images(sender, instance, *args, **kwargs):
     file = os.path.basename(instance.picture.path)
     [os.remove(dir+'/'+f) for f in files if f != file]
 
-
-#Relationship between desk and floor plan
-# class DeskPlan(models.Model):
-#     desk = models.ForeignKey(Desk,on_delete=models.CASCADE)
-#     plan = models.ForeignKey(Plan,on_delete=models.CASCADE)
-#
-#     class Meta:
-#         constraints = [
-#             models.UniqueConstraint(fields=['desk','plan'], name='unique_desk_plan')
-#         ]
 
 class Desk(models.Model):
     plan = models.ForeignKey(Plan,on_delete=models.CASCADE)

@@ -68,23 +68,16 @@ def get_bookings(request):
         year = request.data['year']
         date_from = datetime(day=1,month=int(month),year=int(year))
         date_to = date_from +  relativedelta(months=1)
-        print("Date Range", date_from,date_to)
         slots = create_slots(date_from,date_to)
         #Get the bookings
         #Change from date to current if in future
-        # if not date_from > datetime.now():
-        #     date_from =datetime.now()
         format = "%Y-%m-%d"
         monthly_bookings = Booking.objects.filter(\
                 date__range=[date_from.strftime(format), date_to.strftime(format)],\
                 desk__plan__floor__id=floor_id\
                 ).order_by('date')
-        for booking in monthly_bookings:
-            print('BOOKING',booking.date)
         out_slots = dict()
         for slot in slots:
-            print('slot',slot['date'])
-            #out_slot = dict()
             date_str = slot['date'].strftime('%d/%m/%Y')
             out_slots[date_str] = []
             daily_bookings = monthly_bookings.filter(date=slot['date'])

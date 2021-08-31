@@ -30,7 +30,6 @@ def get_token(request):
             password = request.data["password"]
             user = authenticate(username=email,password=password)
             if user:
-                print('USER',user.__dict__)
                 if user.is_enabled:
                     #Issue token
                     token = get_tokens_for_user(user)
@@ -39,10 +38,8 @@ def get_token(request):
                     token['org_data'] = myorg_serializer.data
                     return Response(token, status=status.HTTP_200_OK)
                 else:
-                    print("Account Disabled")
                     return Response(ResponseSerializer(GeneralResponse(False,"User is not enabled")).data, status=status.HTTP_400_BAD_REQUEST)
             else:
-                print("Credentials Failed")
                 return Response(ResponseSerializer(GeneralResponse(False,"User name or password are incorrect")).data, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             print(e)
@@ -86,7 +83,6 @@ def register(request):
 @api_view(['POST'])
 def forgot_password(request):
     email = request.data['email']
-    print(email)
     try:
         user = Account.objects.get(email=email)
     except Exception as e:

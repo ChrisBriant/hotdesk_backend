@@ -48,7 +48,6 @@ class RegistrationForm(forms.ModelForm):
         user = super().save(commit=False)
         user.set_password(self.cleaned_data["password"])
         user.hash = hex(random.getrandbits(128))
-        print(user.hash)
         url = settings.BASE_URL + "confirm/" + user.hash + "/?next=/add-listing"
         sendjoiningconfirmation(url,user.name,user.email)
         if commit:

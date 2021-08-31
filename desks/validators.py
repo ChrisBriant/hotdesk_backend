@@ -39,7 +39,6 @@ class FileValidator(object):
         if self.content_types:
             content_type = magic.from_buffer(data.read(), mime=True)
             data.seek(0)
-            print(content_type)
 
             if content_type not in self.content_types:
                 params = { 'content_type': content_type }

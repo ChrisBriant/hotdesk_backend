@@ -103,7 +103,6 @@ def passreset(request):
                 print(e)
                 messages.error(request, "Sorry that account cannot be found")
         else:
-            print(form.errors)
             messages.error(request, form.errors)
     return render(request, 'registration/password_reset_form.html', {'form' : form })
 
@@ -162,7 +161,6 @@ def changepass(request):
                 form = NewPasswordForm(request.POST,user=user)
                 if form.is_valid():
                     try:
-                        print("doing password change")
                         user.set_password(form.cleaned_data['password'])
                         user.save()
                         auth_login(request,user)
@@ -180,8 +178,6 @@ def changepass(request):
 
 def confirm(request,hash):
     next_url = request.GET.get('next')
-    print(hash)
-    print(next_url)
     try:
         user = Account.objects.get(hash=hash)
         user.is_enabled = True
@@ -199,7 +195,6 @@ def passreset_api(request,hash):
         if form.is_valid():
             try:
                 user = Account.objects.get(hash=hash)
-                print(user)
                 user.set_password(form.cleaned_data['password'])
                 user.is_enabled = True
                 #Change the hash for security

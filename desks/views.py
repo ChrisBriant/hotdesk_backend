@@ -26,7 +26,6 @@ def create_organisation(request):
     while(len(Organisation.objects.filter(org_id=org_id))):
         letters = string.ascii_letters
         org_id = ''.join(random.choice(letters) for i in range(16))
-    print(org_id)
     ## TODO: Create the organisation and then generate serializer to return data
     #Test with a duplicate org id that we don't get infinite loop
     try:
@@ -59,7 +58,6 @@ def my_orgs(request):
 @permission_classes([IsAuthenticated])
 def join_org(request):
     org_id = request.data['orgId']
-    print(org_id)
     try:
         org = Organisation.objects.get(org_id=org_id)
     except Exception as e:
@@ -79,7 +77,6 @@ def join_org(request):
 @permission_classes([IsAuthenticated])
 def get_org(request):
     org_id = request.data['orgId']
-    print("here",org_id)
     try:
         org_emp = OrgEmployee.objects.get(organisation_id=org_id,employee=request.user)
     except Exception as e:
@@ -177,7 +174,6 @@ def add_plan(request):
         print(e)
         return Response(ResponseSerializer(GeneralResponse(False,"Floor not found.")).data, status=status.HTTP_400_BAD_REQUEST)
     if floor.building.organisation.owner == request.user:
-        print('FILES',request.FILES)
         if request.FILES['picture']:
             #First try to get existing plan
             try:
@@ -258,6 +254,5 @@ def contact(request):
         from_user = "Anonymous"
     subject = 'Hotdesk - Message from ' + from_user
     message = request.data['message']
-    #print("Sending message")
     sendcontactmessage(message,subject)
     return Response(ResponseSerializer(GeneralResponse(True,'Message Sent')).data, status=status.HTTP_200_OK)

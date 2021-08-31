@@ -134,14 +134,12 @@ class OrgEmployeeSerializer(serializers.ModelSerializer):
         fields = ('id','organisation','is_owner','status')
 
     def get_is_owner(self,obj):
-        print(obj.organisation.owner.id,self.context['user'].id)
         if obj.organisation.owner == self.context['user']:
             return True
         else:
             return False
 
     def get_status(self,obj):
-        print(obj.organisation.owner.id,self.context['user'].id)
         if not obj.organisation.owner == self.context['user']:
             if obj.approved:
                 return 'Approved'
