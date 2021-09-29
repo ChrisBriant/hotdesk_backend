@@ -18,7 +18,7 @@ import os
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 #For constructing URLS in the code
-BASE_URL = "http://127.0.0.1:8000/"
+BASE_URL = "https://hotdeskapi.chrisbriant.uk/"
 
 
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
@@ -32,7 +32,7 @@ SECRET_KEY = 'e#-a3-#y1yy^q6cofj%5f*m!4%^cmx^*d#f9zy&3bx@r74h_wo'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['hotdeskapi.chrisbriant.uk', 'http://localhost:5000/']
 
 
 # Application definition
@@ -110,7 +110,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'hotdesk',
         'USER': 'hotdesk',
-        'PASSWORD': 'hotdesk',
+        'PASSWORD': ']AEKHqmB6nP4\>Ty',
         'HOST': 'localhost',
         'PORT': '5432',
     }
@@ -166,6 +166,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 
 SITE_NAME = "Hot Desk"

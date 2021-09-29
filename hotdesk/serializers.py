@@ -148,6 +148,16 @@ class OrgEmployeeSerializer(serializers.ModelSerializer):
         else:
             return 'Admin'
 
+class OrganisationNameSerializer(serializers.ModelSerializer):
+    employee_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Organisation
+        fields = ('id','name','org_id','employee_count')
+
+    def get_employee_count(self,obj):
+        return obj.orgemployee_set.all().count()
+
 
 class BookingSerializer(serializers.ModelSerializer):
     user = EmployeeSerializer()

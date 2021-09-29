@@ -256,3 +256,15 @@ def contact(request):
     message = request.data['message']
     sendcontactmessage(message,subject)
     return Response(ResponseSerializer(GeneralResponse(True,'Message Sent')).data, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+def org_search(request):
+    try:
+        org_name = request.query_params.get('name')
+        orgs = Organisation.objects.filter(name__icontains=org_name)
+        orgserializer = OrganisationNameSerializer(orgs,many=True)
+        return Response(orgserializer.data, status=status.HTTP_200_OK)
+    except Exception as e:
+        print(e)
+        return Response(ResponseSerializer(GeneralResponse(False,"Invalid query.")).data, status=status.HTTP_400_BAD_REQUEST)
